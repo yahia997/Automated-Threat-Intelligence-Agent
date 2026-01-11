@@ -1,0 +1,9 @@
+requests
+python-dotenv
+pandas
+nltk
+streamlit
+streamlit-autorefresh
+plotly
+wordcloud
+matplotlib
