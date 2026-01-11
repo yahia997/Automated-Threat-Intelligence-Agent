@@ -92,6 +92,9 @@ class Fetch_CVEs:
       return dict()
   
   def parse(self):
+    # load old json data (load to know old data to skip or to merge)
+    old = self.load_old_json()
+
     data = dict() # to store and organize the data it
 
     # make the get request
@@ -110,6 +113,11 @@ class Fetch_CVEs:
       content = cve["cve"]
 
       cve_id = content["id"]
+      
+      # if found in the old data, skip, saves resources
+      if old.get(cve_id):
+        continue
+
       publish_date = content["published"]
 
       
@@ -204,14 +212,14 @@ class Fetch_CVEs:
         "metrics": cvss_details,
       }
 
-    # load old json data
-    old = self.load_old_json()
+    # if new data only
+    if len(data):
+      # merge old cves with new ones
+      # no duplicates as I used hashtables (dictionaries in python), best for performance also
+      old.update(data)
 
-    # merge old cves with new ones
-    # no duplicates as I used hashtables (dictionaries in python), best for performance also
-    old.update(data)
+      # to produce report in json format and save it
+      self.save_json(data=old)
 
-    # to produce report in json format and save it
-    self.save_json(data=old)
-
+    # for later use
     return data
