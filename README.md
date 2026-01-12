@@ -1,22 +1,32 @@
 # 🛡️ Automated Threat Intelligence Agent
 ## 🚀 How to run the code ?
-1. You must have Python 3.11.7 or higher
-2. 1. Install the following packages.
+1. Clone the repo:
+```bash
+git clone https://github.com/yahia997/Automated-Threat-Intelligence-Agent.git
+```
+
+2. Add `.env` file in the root directory of the repo with your API key of NVD API, You can get from: https://nvd.nist.gov/developers/request-an-api-key, in the following format:
+```env
+NVD_API_KEY=<Your-API-Key>
+```
+
+3. You must have Python 3.11.7 or higher.
+4. Install the following packages.
 ```bash
 pip freeze > requirements.txt
 ```
-3. For LLM, I used Ollama  locally from https://ollama.com/
+5. For LLM, I used Ollama  locally from https://ollama.com/
 Then installed the model that I used (llama3.2) by typing in the terminal
 ```bash
 ollama pull llama3.2
 ```
-4. Finally, execute `scripts/init.py` for the first time only once to get some historical OT data.
+6. Finally, execute `scripts/init.py` for the first time only once to get some historical OT data.
 
-5. To make a schedule script to run every 10 minutes to get the latest data, just type (for Windows):
+7. To make a schedule script to run every 10 minutes to get the latest data, just type (for Windows):
 ```bash
 ./run.ps1
 ```
-6. To see the dashboard, just run:
+8. To see the dashboard, just run:
 ```bash
 cd streamlit
 streamlit run main.py
@@ -77,7 +87,7 @@ Make your tone formal as the results will be displayed in a website, not persona
 
 ## 🏗️ Architecture Diagram
 <div align="center">
-  <img src="./media/Untitled Diagram.drawio.png" width="60%"/>
+  <img src="./media/Untitled Diagram.drawio.png" width="75%"/>
 </div>
 
 ## 👨‍💻 Technical Explanation
@@ -101,6 +111,8 @@ This is information that helped me.
 
 ### Fetching the data and prefiltering
 As mentioned, we can use `keywordSearch` to get only CVEs that contain a specific word.
+
+We can also call this "heuristic" filtering.
 
 As there is no `OR` option, I created a loop to go through each keyword and make a separate `GET` request, then combine all.
 
@@ -134,6 +146,28 @@ This is also better than pushing large data to the LLM model, which will consume
 ---
 
 ### Scheduling
+I scheduled the scripts to run every 10 minutes.
+
+`init.py` => Only gets data from the last 120 days (maximum allowed range for the API). To put some real historical data on the dashboard.
+
+`fetch.py` => For scheduling every 10 min. Gets data from the last 10 min starting from the time of running.
+
+I created a script to execute the python file: `fetch.py` every 10 minutes: `run.ps1`.
+
+#### Why I did this ?
+I did not put a for loop with `time.sleep()` for the next reasons:
+- If fetch hangs, dead for ever.
+- Memory leaks accumulate.
+- Harder to monitor.
+
+The approach I used will enable better scheduling in case we have Linux OS.
+
+##### On Linux:
+It is better to use `crontab` to schedule the task. If the task will run on linux system it will be as follows:
+```cron
+*/10 * * * * <path>/run_fetch.sh
+```
+As `run_fetch.sh` is a bash script that will just run the python script.
 
 ---
 

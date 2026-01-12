@@ -21,6 +21,9 @@ class Fetch_CVEs:
   ]
 
   def _load(self, keyword):
+    # some logging
+    print(f"Fetching CVEs that contain the keyword: '{keyword}' ...")
+
     response_headers = {
       "apiKey": self.nvd_api_key
     }
@@ -39,6 +42,9 @@ class Fetch_CVEs:
 
     # get the vulnerabilities or empty list
     CVES = data.get('vulnerabilities', [])
+
+    # some logging
+    print(f"Fetching finished, found {len(CVES)} records.")
 
     # json object is returned
     return CVES
@@ -92,6 +98,7 @@ class Fetch_CVEs:
       return dict()
   
   def parse(self):
+
     # load old json data (load to know old data to skip or to merge)
     old = self.load_old_json()
 
@@ -106,6 +113,12 @@ class Fetch_CVEs:
     for kw in self.keywords:
       part = self._load(keyword=kw)
       cves.extend(part)
+
+    # some logging
+    print(f"All fetching ended, found {len(cves)} records.")
+
+    # some logging
+    print("Start parsing data and LLM reasoning ...")
 
     # go through each vulnerability
     # customized only -> To avoid killing my GPU :)) (not for production)
@@ -220,6 +233,10 @@ class Fetch_CVEs:
 
       # to produce report in json format and save it
       self.save_json(data=old)
+
+    # some logging
+    print(f"{len(data)} new OT CVEs added.")
+
 
     # for later use
     return data
