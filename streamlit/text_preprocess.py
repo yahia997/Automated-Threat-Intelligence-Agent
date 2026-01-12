@@ -30,7 +30,6 @@ def preprocess_ot_text(text):
     }
     stop_words.update(cve_noise)
     
-    
     lemmatizer = WordNetLemmatizer()
     
     # remoev noise chars

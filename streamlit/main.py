@@ -123,13 +123,13 @@ elif page == "Analytics & Metrics":
     if filtered_data:
         df = pd.DataFrame(filtered_data)
         
-        # Metrics Row
+        # Some metrics at the begining ---------------------------------------------------
         col1, col2, col3 = st.columns(3)
         col1.metric("Total Count", len(df))
         col2.metric("Avg CVSS", round(df['cvss_score'].mean(), 2))
         col3.metric("Critical (9.0+)", len(df[df['cvss_score'] >= 9.0]))
 
-        # timeline (cummulative) (monthly)
+        # timeline (cummulative) (monthly) ---------------------------------------------------
         df_timeline = df.set_index('publish_date').sort_index().resample('MS').size().reset_index(name='Monthly Count')
         df_timeline['Cumulative Count'] = df_timeline['Monthly Count'].cumsum()
         
@@ -145,7 +145,11 @@ elif page == "Analytics & Metrics":
         fig_cumulative.update_traces(fillcolor="rgba(0, 212, 255, 0.3)", line_color="#00d4ff")
         st.plotly_chart(fig_cumulative, use_container_width=True)
 
-        # word cloud on text
+        # word cloud on text ---------------------------------------------------
+        st.markdown("""
+        #### Most imporant mentioned words in CVEs' descriptions
+        """)
+
         text = " ".join(desc for desc in df.original_description + df.ai_response)
         text = preprocess_ot_text(text)
 
@@ -163,8 +167,45 @@ elif page == "Analytics & Metrics":
         ax.axis("off")
         st.pyplot(fig)
         
+        # extract data from metrics 
+        metrics_df = pd.json_normalize(df['metrics'])
+        df = df.join(metrics_df)
+
+        col1, col2 = st.columns([1, 1])
+
+        with col1:
+            # Histogram for CVSS ---------------------------------------------------
+            fig = px.histogram(df, x="cvss_score", nbins=10, title="Distribution of CVSS Scores",
+                            labels={"cvss_score": "CVSS Score"})
+            st.plotly_chart(fig)
         
-        
-        
+        with col2:
+            cvss =  df['cvss_score'].fillna(df['cvss_score'].mean())
+
+            # scatter plot, exploitabilityScore vs impactScore ---------------------------------------------------
+            fig = px.scatter(df, x="exploitabilityScore", y="impactScore",
+                    color=cvss, size=cvss,
+                    color_continuous_scale="RdYlGn_r",
+                    hover_data=["cvss_score"],
+                    title="Impact vs Exploitability of CVEs")
+
+            st.plotly_chart(fig)
+
+        # dist of attack vector ---------------------------------------------------
+        attack_vector_grouped = df.groupby("vector_attack").size().reset_index(name="count")
+
+        fig = px.bar(
+        attack_vector_grouped,
+            x="vector_attack",
+            y="count",
+            color="count",                     
+            text="count",                       
+            title="Number of CVEs by Attack Vector",
+            color_continuous_scale="Viridis" 
+        )
+
+        st.plotly_chart(fig)
+
+
     else:
         st.warning("No data matches the selected filters.")

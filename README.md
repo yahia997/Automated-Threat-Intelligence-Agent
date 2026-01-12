@@ -107,6 +107,13 @@ I also read the parameters of the API and found:
 
 This is information that helped me.
 
+I planned to use OOP to keep every thing well organized, I created a class with the following methods:
+- `_load`: Makes get request, accepts keyword as a parameter.
+- `get_local_ai_insight`: Give it some data and get ai response.
+- `save_json`.
+- `load_old_json`.
+- `parse`: parsing data, update `cve_data.json`, applies all functions above inside it.
+
 ---
 
 ### Fetching the data and prefiltering
@@ -240,22 +247,41 @@ It is in the form of python dictionary, and the keys are CVE-ID to ensure that t
 There are 2 main pages:
 #### Page to list the updated OT vulnerabilities.
 <div align="center">
-  <img src="./media/2.png" width="75%"/>
-  <img src="./media/3.png" width="75%"/>
+  <img src="./media/2.png" width="80%"/>
+  <img src="./media/3.png" width="80%"/>
 </div>
 
 #### Page for general analysis.
 ##### Cummulative count of OT vulnerabilites (month scale)
 <div align="center">
-  <img src="./media/4.png" width="75%"/>
+  <img src="./media/8.png" width="80%"/>
 </div>
 
-##### Word cloud to see easily determine the most critical casuses, types of vulnerabilities 
+##### Word cloud to see easily and determine the most critical casuses, types of vulnerabilities 
+To make this plot, I did the following:
+- Removed stopwords like: at, the, etc.
+- Removed some noise words that are related to the domain of OT.
+- Applied Lemmatization.
+- Standarized case, all are in a lower case. 
+
 <div align="center">
-  <img src="./media/5.png" width="75%"/>
+  <img src="./media/5.png" width="80%"/>
+</div>
+
+#### Other additional important plots
+These plots spotlight relations between some variables, Also a deep dive in the causes of the vulnerability, in addition to the distribution of CVSS.
+
+<div align="center">
+  <img src="./media/6.png" width="80%"/>
+</div>
+
+<div align="center">
+  <img src="./media/7.png" width="80%"/>
 </div>
 
 The dashboard also has other features like:
 - Easy filtering by: date, search by CVE-ID, or description.
 - Auto refresh every 10 min.
 - A button to refresh manually.
+
+Made with full passion by me (Yahya M. Zakaria ❤️)
