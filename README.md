@@ -1,4 +1,4 @@
-# 🛡️ Automated Threat Intelligence Agent
+# 🛡️ Automated OT/ICS Threat Intelligence Agent
 ## 🚀 How to run the code ?
 1. Clone the repo:
 ```bash
